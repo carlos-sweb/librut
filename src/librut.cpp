@@ -1,18 +1,11 @@
 #include <string>
-
+#include <librut.hpp>
 using namespace std;
 using namespace absl;
 
 namespace ppRut{
-	class rut{
-		private:
-			string body="";
-			string digitS="";
-			int digitN=-1;
-			int total = 0;
-		public:	
-		rut(string rutToParse=NULL){
-			if(!rutToParse.empty()){
+	rut::rut(string rutToParse){
+		if(!rutToParse.empty()){
 				vector<string> v = StrSplit(rutToParse, "-");			
 				string bodyDirty = v.size() >= 1 ? v.at(0) : "";				
 				for(char c : bodyDirty ){if(isdigit(static_cast<unsigned char>(c))){body.push_back(c);}}
@@ -29,21 +22,18 @@ namespace ppRut{
 				}
 			}		
 			calculate();		
-		}
-		int calculate(){
-			digitN = 11-(total-((total/11)*11)); 		
-			return digitN;
-		}
-		string numberToDigitV(){
-			return digitN == 11 ? "0" : ( digitN == 10 ? "k" : to_string(digitN) );		
-		}
-		bool checkDigit(string localDigit){
-			return (numberToDigitV() == localDigit);
-		}
-		bool checkDigit(){
-			return (numberToDigitV() == digitS);
-		}
-		string format(string separate_miles=".",string separate_digit="-"){
+	}
+
+	bool rut::checkDigit(string localDigit){return (numberToDigitV() == localDigit);}
+	bool rut::checkDigit(){return (numberToDigitV() == digitS);}
+	int rut::calculate(){
+		digitN = 11-(total-((total/11)*11)); 		
+		return digitN;
+	}
+	string rut::numberToDigitV(){
+		return digitN == 11 ? "0" : ( digitN == 10 ? "k" : to_string(digitN) );		
+	}
+	string rut::format(string separate_miles,string separate_digit){
 			string output = "";
 			string TmpBody = "";
 			int position_separate=0;
@@ -56,9 +46,7 @@ namespace ppRut{
 			output.append(separate_digit);
 			output.append(numberToDigitV());
 			return output;
-		}
-		string getDigit(){
-			return numberToDigitV();
-		}
-	};
+	}
+
+	string rut::getDigit(){ return numberToDigitV();}	
 }
