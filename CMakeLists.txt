@@ -10,12 +10,12 @@ find_package(absl REQUIRED)
 include(GNUInstallDirs)
 configure_file(librut.pc.in librut.pc @ONLY)
 
-add_executable(rut src/main.cpp src/librut.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp src/librut.cpp)
 
-target_link_libraries(rut PUBLIC fmt::fmt PRIVATE absl::strings)
-target_include_directories(rut PRIVATE includes)
+target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt PRIVATE absl::strings)
+target_include_directories(${PROJECT_NAME} PRIVATE includes)
 
-install(TARGETS rut 
+install(TARGETS ${PROJECT_NAME} 
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 	)

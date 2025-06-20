@@ -10,11 +10,17 @@ int main(int,char * argv[]){
     argh::parser cmdl(argv);
     if (cmdl({ "-p", "--parser" })){    	
     	ppRut::rut rut(cmdl({"-p","--parser"}).str());
-    	auto digitCheck = cmdl({"--check-digit"}).str();
+    	auto digitCheck = cmdl({"--check-digit"}).str();    	
     	if(digitCheck!=NULL){
+    		const vector<string> accept_digit = {"0","1","2","3","4","5","6","7","8","9","k"};
+    		bool valid_digit =std::find(accept_digit.begin(),accept_digit.end(),digitCheck) != accept_digit.end();    		
     		bool check = rut.checkDigit(digitCheck);
-    		fmt::print("check digit => {}\n",(check ? "\033[32mOk\033[00m":"\033[31mError\033[00m"));
-    	}				
+    		if(!valid_digit){
+    			fmt::print("Use a valid digit => {}\n"," 0-9 or \"k\" letter");
+    		}
+    		fmt::print("check digit => {}\n",(check ? "\033[32mOk\033[00m":digitCheck+" \033[31mError\033[00m"));
+    	}
+
 		if( !cmdl[{"--get-digit"}] ){
 			auto separate_miles = !cmdl[{"--separate-miles"}] ? cmdl({"--separate-miles"}) ? cmdl({"--separate-miles"}).str() : "." : ".";			
 			auto separate_digit = !cmdl[{"--separate-digit"}] ? cmdl({"--separate-digit"}) ?  cmdl({"--separate-digit"}).str() : "-" :"-";
