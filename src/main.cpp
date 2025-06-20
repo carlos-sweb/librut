@@ -10,8 +10,8 @@ int main(int,char * argv[]){
     argh::parser cmdl(argv);
     if (cmdl({ "-p", "--parser" })){    	
     	ppRut::rut rut(cmdl({"-p","--parser"}).str());
-    	auto digitCheck = cmdl({"--check-digit"}).str();    	
-    	if(digitCheck!=NULL){
+    	string digitCheck = cmdl({"--check-digit"}).str();    	
+    	if(!digitCheck.empty()){
     		const vector<string> accept_digit = {"0","1","2","3","4","5","6","7","8","9","k"};
     		bool valid_digit =std::find(accept_digit.begin(),accept_digit.end(),digitCheck) != accept_digit.end();    		
     		bool check = rut.checkDigit(digitCheck);

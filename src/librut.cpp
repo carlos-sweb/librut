@@ -1,12 +1,25 @@
-#include <string>
 #include <librut.hpp>
-#include <iostream>
-
+#include <vector>
+#include <sstream>
+#include <algorithm>
 
 using namespace std;
-using namespace absl;
 
 namespace ppRut{
+	
+	inline vector<string> split(const string& str, char delimiter = '-') {
+    vector<string> tokens;
+    string token;
+    istringstream tokenStream(str);    
+    while (getline(tokenStream, token, delimiter)) {
+        if (!token.empty()) {
+            tokens.push_back(token);
+        }
+    }    
+    return tokens;
+	}
+
+
 	rut::rut(const string &rutToParse,const string &digitS):rutRaw(rutToParse),digitS(digitS){parser();}
 	rut::rut(const int &rutToParse):rutRaw(to_string(rutToParse)){parser();}
 	rut::rut(const string &rutToParse):rutRaw(rutToParse){parser();}
@@ -15,7 +28,8 @@ namespace ppRut{
 			// Aqui podemos mejorar para aceptar un espacio vacio
 			// 30.000.000 5 algo asi
 			int multiplicador=2;
-			const vector<string> v = StrSplit(rutRaw, "-");
+			//const vector<string> v = StrSplit(rutRaw, "-");
+			const vector<string> v = split(rutRaw);
 			if(v.size() >= 1){
 				for(char c : v.at(0) ){
 					if(isdigit(static_cast<unsigned char>(c))){

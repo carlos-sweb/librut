@@ -3,8 +3,9 @@ exec_prefix=${prefix}
 libdir=${exec_prefix}/@CMAKE_INSTALL_LIBDIR@
 includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
 
-Name: librut
+Name: @PROJECT_NAME@
 Description: Biblioteca para validación de RUT chileno
 Version: @PROJECT_VERSION@
 Libs: -L${libdir} -lrut
 Cflags: -I${includedir}
+Requires: 

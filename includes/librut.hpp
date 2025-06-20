@@ -1,19 +1,20 @@
 #include <string>
-#include <vector>
-#include "absl/strings/str_join.h"
-#include "absl/strings/str_split.h"
+
 using namespace std;
-using namespace absl;
+
 namespace ppRut{
 	class rut{
 		private:
-			string rutRaw="";
-			string body="";
-			string digitS="";
-			int digitN=-1;
-			int total = 0;
-			int calculate();
-			string numberToDigitV() const;
+			// string 
+			string rutRaw="",
+			body="",
+			digitS="",
+			numberToDigitV() const;
+			// int
+			int digitN=-1,
+			total = 0,
+			calculate();
+			// void
 			void parser();
 		public:	
 			rut(const string&,const string&);
