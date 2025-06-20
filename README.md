@@ -19,12 +19,12 @@ int main(){
 
 ## How use rut CommandLineApp
 
-```console
+```ssh
 git clone https://github.com/carlos-sweb/librut && cd librut
 mkdir build && cd build && cmake .. && make
 sudo make install
 ```
-```console
+```ssh
 rut --parser="30686957-4"
 30.686.957-4
 

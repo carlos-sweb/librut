@@ -8,7 +8,6 @@ namespace ppRut{
 	rut::rut(const string &rutToParse,const string &digitS):rutRaw(std::move(rutToParse)),digitS(digitS){parser();}
 	rut::rut(const int &rutToParse):rutRaw(to_string(rutToParse)){parser();}
 	rut::rut(const string &rutToParse):rutRaw(rutToParse){parser();}
-
 	void rut::parser(){
 		if(!rutRaw.empty()){
 			vector<string> v = StrSplit(rutRaw, "-");
@@ -39,7 +38,7 @@ namespace ppRut{
 	string rut::numberToDigitV() const {
 		return digitN == 11 ? "0" : ( digitN == 10 ? "k" : to_string(digitN) );
 	}
-	string rut::format(const string &separate_miles,const string &separate_digit){
+	string rut::format(const string &separate_miles,const string &separate_digit) const {
 		string output = "",
 		TmpBody = "";
 		int position_separate=0;
@@ -53,5 +52,5 @@ namespace ppRut{
 		output.append(numberToDigitV());
 		return output;
 	}
-	string rut::getDigit(){ return numberToDigitV();}
+	string rut::getDigit() const { return numberToDigitV();}
 }
