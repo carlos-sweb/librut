@@ -1,31 +1,37 @@
 #include <string>
 #include <librut.hpp>
-#include <utility>
+#include <iostream>
+
+
 using namespace std;
 using namespace absl;
 
 namespace ppRut{
-	rut::rut(const string &rutToParse,const string &digitS):rutRaw(std::move(rutToParse)),digitS(digitS){parser();}
+	rut::rut(const string &rutToParse,const string &digitS):rutRaw(rutToParse),digitS(digitS){parser();}
 	rut::rut(const int &rutToParse):rutRaw(to_string(rutToParse)){parser();}
 	rut::rut(const string &rutToParse):rutRaw(rutToParse){parser();}
 	void rut::parser(){
-		if(!rutRaw.empty()){
-			vector<string> v = StrSplit(rutRaw, "-");
-			string bodyDirty = v.size() >= 1 ? v.at(0) : "";
-			for(char c : bodyDirty ){if(isdigit(static_cast<unsigned char>(c))){body.push_back(c);}}			 
+		if(!rutRaw.empty()){							
+			// Aqui podemos mejorar para aceptar un espacio vacio
+			// 30.000.000 5 algo asi
+			int multiplicador=2;
+			const vector<string> v = StrSplit(rutRaw, "-");
+			if(v.size() >= 1){
+				for(char c : v.at(0) ){
+					if(isdigit(static_cast<unsigned char>(c))){
+						body.push_back(c);
+					}
+				}	
+			}			
 			if(v.size() >= 2){
 				digitS	 = v.at(1);
-			}
-			string TmpBody = body;
-			reverse(TmpBody.begin(),TmpBody.end());
-			int multiplicador=2;
-			for(char c : TmpBody){
-				if(isdigit(static_cast<unsigned char>(c))){
-					int cInit = ( c-'0') * multiplicador;
-					total = (total+cInit);
-					if(multiplicador==7){multiplicador=2;}else{multiplicador++;}
-				}
-			}
+			}										
+			for(int i = (body.length()-1); i >= 0;i--){
+				if(isdigit(static_cast<unsigned char>(body.at(i)))){					
+					total += ((body.at(i)-'0')*multiplicador);
+					multiplicador = multiplicador == 7 ? 2 : ( multiplicador + 1 );
+				}				
+			}			
 		}
 		calculate();
 	}
