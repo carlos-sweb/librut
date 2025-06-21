@@ -1,24 +1,22 @@
 #include <librut.hpp>
 #include <vector>
 #include <sstream>
-#include <algorithm>
 
 using namespace std;
 
 namespace ppRut{
 	
 	inline vector<string> split(const string& str, char delimiter = '-') {
-    vector<string> tokens;
-    string token;
-    istringstream tokenStream(str);    
-    while (getline(tokenStream, token, delimiter)) {
-        if (!token.empty()) {
-            tokens.push_back(token);
-        }
-    }    
-    return tokens;
+	    vector<string> tokens;
+	    string token;
+	    istringstream tokenStream(str);    
+	    while (getline(tokenStream,token,delimiter)) {
+	        if (!token.empty()){
+	            tokens.push_back(token);
+	        }
+	    }    
+    	return tokens;
 	}
-
 
 	rut::rut(const string &rutToParse,const string &digitS):rutRaw(rutToParse),digitS(digitS){parser();}
 	rut::rut(const int &rutToParse):rutRaw(to_string(rutToParse)){parser();}
@@ -57,17 +55,19 @@ namespace ppRut{
 	}
 	string rut::numberToDigitV() const {
 		return digitN == 11 ? "0" : ( digitN == 10 ? "k" : to_string(digitN) );
-	}
+	}	
 	string rut::format(const string &separate_miles,const string &separate_digit) const {
-		string output = "",
-		TmpBody = "";
+		string output = "";		
 		int position_separate=0;
 		for(int i = (body.size()-1);i>=0;i-- ){
-			if(position_separate == 3){TmpBody.append(separate_miles);position_separate = 1;}else{position_separate++;}
-			TmpBody.push_back(body.at(i));
-		}
-		reverse(TmpBody.begin(),TmpBody.end());
-		output.append(TmpBody);
+			if(position_separate == 3){				
+				output.insert(0,separate_miles);
+				position_separate = 1;
+			}else{
+				position_separate++;
+			}			
+			output.insert(0,string(1,body.at(i)));
+		}		
 		output.append(separate_digit);
 		output.append(numberToDigitV());
 		return output;

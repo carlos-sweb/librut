@@ -6,10 +6,11 @@
 #include "argh.h"
 #include "librut.hpp"
 using namespace std;
+using namespace ppRut;
 int main(int,char * argv[]){
     argh::parser cmdl(argv);
     if (cmdl({ "-p", "--parser" })){    	
-    	ppRut::rut rut(cmdl({"-p","--parser"}).str());
+    	rut rut(cmdl({"-p","--parser"}).str());
     	string digitCheck = cmdl({"--check-digit"}).str();    	
     	if(!digitCheck.empty()){
     		const vector<string> accept_digit = {"0","1","2","3","4","5","6","7","8","9","k"};

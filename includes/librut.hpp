@@ -1,9 +1,18 @@
+#ifndef LIBRUT_HPP
+#define LIBRUT_HPP
+
+#if defined(__GNUC__) && __GNUC__ >= 4
+    #define RUT_API __attribute__((visibility("default")))
+#else
+    #define RUT_API
+#endif
+
 #include <string>
 
 using namespace std;
 
 namespace ppRut{
-	class rut{
+	class RUT_API rut{
 		private:
 			// string 
 			string rutRaw="",
@@ -26,3 +35,4 @@ namespace ppRut{
 			string getDigit() const;
 	};
 }
+#endif

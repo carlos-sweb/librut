@@ -19,9 +19,11 @@ add_library(rut_core SHARED
     src/librut.cpp
     includes/librut.hpp
 )
+
+
 # Controlamos explícitamente el nombre de salida
 set_target_properties(rut_core PROPERTIES
-    OUTPUT_NAME "librut"  # Sin prefijo "lib"
+    OUTPUT_NAME "librut"
     PREFIX ""          # Eliminamos cualquier prefijo automático
     VERSION ${PROJECT_VERSION}
     SOVERSION 1
@@ -29,13 +31,15 @@ set_target_properties(rut_core PROPERTIES
     CXX_VISIBILITY_PRESET hidden    
 
 )
+target_compile_options(rut_core PRIVATE -fvisibility=hidden -fvisibility-inlines-hidden)
 
 target_include_directories(rut_core PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/includes>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(rut_core)
+target_compile_definitions(rut_core PRIVATE "RUT_API=__attribute__((visibility(\"default\")))")
+
 
 # ... (el resto de la configuración igual que antes)
 
@@ -58,10 +62,9 @@ target_include_directories(rut_lib PUBLIC
 
 target_link_libraries(rut_lib)
 
-
 add_executable(${PROJECT_NAME} src/main.cpp)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt rut_lib)
+target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt rut_lib )
 
 target_include_directories(${PROJECT_NAME} PRIVATE includes)
 
