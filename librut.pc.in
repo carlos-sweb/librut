@@ -8,4 +8,4 @@ Description: Biblioteca para validación de RUT chileno
 Version: @PROJECT_VERSION@
 Libs: -L${libdir} -lrut
 Cflags: -I${includedir}
-Requires: 
+Requires:

@@ -8,29 +8,28 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(BUILD_TESTING "build tests" ON)
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(fmt REQUIRED)
 
 include(GNUInstallDirs)
+
 configure_file(librut.pc.in librut.pc @ONLY)
 
+# SHARED
 add_library(rut_core SHARED
-    src/librut.cpp
-    includes/librut.hpp
+    src/librut.cpp includes/librut.hpp
 )
-
-
-# Controlamos explícitamente el nombre de salida
 set_target_properties(rut_core PROPERTIES
     OUTPUT_NAME "librut"
     PREFIX ""          # Eliminamos cualquier prefijo automático
     VERSION ${PROJECT_VERSION}
     SOVERSION 1
     DEFINE_SYMBOL "RUT_EXPORT"
-    CXX_VISIBILITY_PRESET hidden    
-
+    CXX_VISIBILITY_PRESET hidden
 )
+
 target_compile_options(rut_core PRIVATE -fvisibility=hidden -fvisibility-inlines-hidden)
 
 target_include_directories(rut_core PUBLIC 
@@ -39,7 +38,7 @@ target_include_directories(rut_core PUBLIC
 )
 
 target_compile_definitions(rut_core PRIVATE "RUT_API=__attribute__((visibility(\"default\")))")
-
+# SHARED
 
 # ... (el resto de la configuración igual que antes)
 
@@ -60,15 +59,19 @@ target_include_directories(rut_lib PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_link_libraries(rut_lib)
-
 add_executable(${PROJECT_NAME} src/main.cpp)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt rut_lib )
-
+target_link_libraries(${PROJECT_NAME} PUBLIC rut_lib )
 target_include_directories(${PROJECT_NAME} PRIVATE includes)
 
 install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} )
+
+install(TARGETS rut_lib
+        EXPORT rut-targets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
 install(TARGETS rut_core
         EXPORT rut-targets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -81,10 +84,8 @@ install(EXPORT rut-targets
     NAMESPACE ppRut::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rut-${PROJECT_VERSION}
 )
-install(FILES 
-    "${CMAKE_CURRENT_BINARY_DIR}/librut.pc"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/librut.pc" DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 install(FILES "${CMAKE_CURRENT_LIST_DIR}/includes/librut.hpp" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(FILES "${CMAKE_CURRENT_LIST_DIR}/LICENSE.txt" DESTINATION ${CMAKE_INSTALL_DOCDIR})
 install(FILES "${CMAKE_CURRENT_LIST_DIR}/README.md" DESTINATION ${CMAKE_INSTALL_DOCDIR})

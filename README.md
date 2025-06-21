@@ -4,6 +4,8 @@ For more information [Wikipedia Link](https://es.wikipedia.org/wiki/Rol_%C3%9Ani
 
 ## How use librut.hpp
 
+Here is the simplest example:
+
 ```cpp
 #include <iostream>
 #include <librut.hpp>
@@ -16,53 +18,88 @@ int main(){
 	std::cout << rut.format(".","-") << "\n";
 }
 ```
-or
+If you want to browse through a bunch of RUT numbers, I'll show you how:
 
 ```cpp
-#include <iostream>
+
+#include <chrono>
+#include <stdio.h>
 #include <librut.hpp>
-using namespace std;
 using namespace ppRut;
-int main()
-{
-    int start = 1000000, end = 99999999;
-    while(start < end){
-        rut rut(start);
-        cout << rut.format() << "\n";
-        start++;
-    }
-    return 0;
+
+int main() {
+
+  auto time_begin = std::chrono::high_resolution_clock::now();
+
+  int begin = 1000000,end = 99999999;
+
+  while(begin<end){
+
+    rut rut(begin);  
+
+    printf("%s\n",rut.format().c_str());
+
+    begin++;
+
+  }  
+  
+   auto time_end = std::chrono::high_resolution_clock::now();
+
+   auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( time_end - time_begin );
+
+   printf("Execution time %d ms \n", duration.count() );
+
+   return 0;
+
 }
 ```
+The result of a local test:
+
+Linux fedora 6.14.11-300.fc42.x86_64
+32 GB RAM
+Execution time 7.4 minutes to analyze 98.999.999 Chilean R.U.T
+
+```sh
+......
+99.999.994-8
+99.999.995-6
+99.999.996-4
+99.999.997-2
+99.999.998-0
+Execution time 445296 ms
+```
+
+
 ```cmake
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.31)
 
-project(rut-test LANGUAGES CXX)
+project(example-rut VERSION 0.1.0 LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(rut REQUIRED)
 
+include(GNUInstallDirs)
+
 add_executable(${PROJECT_NAME} main.cpp)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC ppRut::rut_core)
+target_link_libraries(${PROJECT_NAME} PUBLIC ppRut::rut_core )
+# or 
+# target_link_libraries(${PROJECT_NAME} PUBLIC ppRut::rut_lib )
 
-include(GNUInstallDirs)
-install(TARGETS ${PROJECT_NAME}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 ```
 
-## How use rut CommandLineApp
+## How use rut "CommandLineApp" ?
 
-```ssh
+```sh
 git clone https://github.com/carlos-sweb/librut && cd librut
 mkdir build && cd build && cmake .. && make
 sudo make install
 ```
-```ssh
+```sh
 rut --parser="30686957-4"
 30.686.957-4
 
