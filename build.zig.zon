@@ -1,0 +1,13 @@
+.{
+    .name = .librut,
+    .version = "0.2.0",
+    .fingerprint = 0x99acc09e102a0c47,
+    .minimum_zig_version = "0.16.0",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "LICENSE.txt",
+        "README.md",
+    },
+}
