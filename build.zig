@@ -161,9 +161,9 @@ pub fn build(b: *std.Build) void {
     const static_pc_file = wf.add("librut-static.pc", static_pc);
 
     b.getInstallStep().dependOn(
-        &b.addInstallFileWithDir(shared_pc_file, .lib, "librut.pc").step,
+        &b.addInstallFileWithDir(shared_pc_file, .{ .custom = "lib/pkgconfig" }, "librut.pc").step,
     );
     b.getInstallStep().dependOn(
-        &b.addInstallFileWithDir(static_pc_file, .lib, "librut-static.pc").step,
+        &b.addInstallFileWithDir(static_pc_file, .{ .custom = "lib/pkgconfig" }, "librut-static.pc").step,
     );
 }

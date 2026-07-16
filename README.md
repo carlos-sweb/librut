@@ -118,7 +118,9 @@ Equivalente a `cmake install`. Zig instala los artefactos en el layout estandar 
 ```
 <prefix>/
 ├── bin/        rut, bench, bench_comp
-├── lib/        librut.so, librut.a, librut_c.a, .pc files
+├── lib/
+│   ├── librut.so, librut.a, librut_c.a
+│   └── pkgconfig/ librut.pc, librut-static.pc
 └── include/    rut.h, rut.zig
 ```
 
@@ -141,6 +143,11 @@ sudo $(which zig) uninstall -p /usr/local
 ```
 
 > Si `sudo zig` falla con "command not found", es porque `sudo` no tiene el `PATH` de tu usuario. Usa `$(which zig)` para resolver la ruta completa del binario.
+>
+> Si `pkg-config` no encuentra librut despues de instalar a `/usr/local`, exporta el path:
+> ```sh
+> export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
+> ```
 
 ## Uso de la CLI
 
