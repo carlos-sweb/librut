@@ -139,7 +139,11 @@ sudo $(which zig) build -Doptimize=ReleaseSafe -p /usr
 pkg-config --libs --cflags librut
 
 # Desinstalar
-sudo $(which zig) uninstall -p /usr/local
+sudo rm -f /usr/local/bin/rut /usr/local/bin/bench /usr/local/bin/bench_comp
+sudo rm -f /usr/local/lib/librut.so /usr/local/lib/librut.a /usr/local/lib/librut_c.a
+sudo rm -f /usr/local/lib/pkgconfig/librut.pc /usr/local/lib/pkgconfig/librut-static.pc
+sudo rm -f /usr/local/include/rut.h /usr/local/include/rut.zig
+sudo ldconfig
 ```
 
 > Si `sudo zig` falla con "command not found", es porque `sudo` no tiene el `PATH` de tu usuario. Usa `$(which zig)` para resolver la ruta completa del binario.
