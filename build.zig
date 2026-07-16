@@ -132,9 +132,8 @@ pub fn build(b: *std.Build) void {
 
     // ── pkg-config files ────────────────────────────────────
     const wf = b.addWriteFiles();
-    const prefix = b.install_prefix;
 
-    const shared_pc = std.fmt.allocPrint(b.allocator,
+    const shared_pc = b.fmt(
         \\prefix={s}
         \\libdir=${{prefix}}/lib
         \\includedir=${{prefix}}/include
@@ -144,9 +143,9 @@ pub fn build(b: *std.Build) void {
         \\Version: 0.2.0
         \\Libs: -L${{libdir}} -lrut
         \\Cflags: -I${{includedir}}
-    , .{prefix}) catch unreachable;
+    , .{b.install_prefix});
 
-    const static_pc = std.fmt.allocPrint(b.allocator,
+    const static_pc = b.fmt(
         \\prefix={s}
         \\libdir=${{prefix}}/lib
         \\includedir=${{prefix}}/include
@@ -156,7 +155,7 @@ pub fn build(b: *std.Build) void {
         \\Version: 0.2.0
         \\Libs: -L${{libdir}} -lrut_c
         \\Cflags: -I${{includedir}}
-    , .{prefix}) catch unreachable;
+    , .{b.install_prefix});
 
     const shared_pc_file = wf.add("librut.pc", shared_pc);
     const static_pc_file = wf.add("librut-static.pc", static_pc);

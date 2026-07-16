@@ -113,21 +113,34 @@ target_include_directories(mi_app PRIVATE ${LIBRUT_INCLUDE})
 
 ## Instalacion en el sistema
 
+Equivalente a `cmake install`. Zig instala los artefactos en el layout estandar FHS:
+
+```
+<prefix>/
+├── bin/        rut, bench, bench_comp
+├── lib/        librut.so, librut.a, librut_c.a, .pc files
+└── include/    rut.h, rut.zig
+```
+
 ```sh
-# Compilar en modo Release
+# Instalacion local (zig-out/)
 zig build -Doptimize=ReleaseSafe
 
-# Copiar artefactos
-sudo cp zig-out/lib/librut.so /usr/local/lib/
-sudo cp zig-out/lib/librut_c.a /usr/local/lib/
-sudo cp zig-out/include/rut.h /usr/local/include/
-sudo cp zig-out/lib/librut.pc /usr/local/lib/pkgconfig/
-sudo cp zig-out/lib/librut-static.pc /usr/local/lib/pkgconfig/
+# Instalar a /usr/local (requiere sudo, como cmake --install)
+sudo $(which zig) build -Doptimize=ReleaseSafe -p /usr/local
 sudo ldconfig
+
+# Instalar a /usr
+sudo $(which zig) build -Doptimize=ReleaseSafe -p /usr
 
 # Verificar
 pkg-config --libs --cflags librut
+
+# Desinstalar
+sudo $(which zig) uninstall -p /usr/local
 ```
+
+> Si `sudo zig` falla con "command not found", es porque `sudo` no tiene el `PATH` de tu usuario. Usa `$(which zig)` para resolver la ruta completa del binario.
 
 ## Uso de la CLI
 
