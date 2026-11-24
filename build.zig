@@ -139,7 +139,7 @@ pub fn build(b: *std.Build) void {
         \\
         \\Name: librut
         \\Description: Biblioteca para validacion de RUT chileno
-        \\Version: 0.2.0
+        \\Version: 0.3.0
         \\Libs: -L${{libdir}} -lrut
         \\Cflags: -I${{includedir}}
     , .{pc_prefix});
@@ -151,7 +151,7 @@ pub fn build(b: *std.Build) void {
         \\
         \\Name: librut-static
         \\Description: Biblioteca para validacion de RUT chileno (estatica)
-        \\Version: 0.2.0
+        \\Version: 0.3.0
         \\Libs: -L${{libdir}} -lrut_c
         \\Cflags: -I${{includedir}}
     , .{pc_prefix});

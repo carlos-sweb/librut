@@ -1,30 +1,40 @@
 const std = @import("std");
-const RUT = @import("rut").RUT;
+const rutDv = @import("rut").rutDv;
 
 pub fn main(init: std.process.Init) !void {
     const io = init.io;
+    const gpa = init.gpa;
     const stdout_file = std.Io.File.stdout();
 
-    const begin: u32 = 1_000_000;
-    const end: u32 = 99_999_999;
+    const count: usize = 1000;
+    const passes: usize = 100_000; // 100M RUTs total
+    const total_ops: u64 = count * passes;
 
-    var out_buf: [30]u8 = undefined;
-
-    const time_begin = std.Io.Timestamp.now(io, .awake);
-
-    var acc: u64 = 0;
-    var i = begin;
-    while (i < end) : (i += 1) {
-        const rut = RUT.fromNumber(i);
-        const formatted = rut.formatToBuf(&out_buf, ".", "-");
-        acc += formatted[formatted.len - 1];
+    var ruts = try gpa.alloc([8]u8, count);
+    defer gpa.free(ruts);
+    for (0..count) |i| {
+        _ = std.fmt.bufPrint(&ruts[i], "{d}", .{16521526 + i}) catch unreachable;
     }
 
-    const time_end = std.Io.Timestamp.now(io, .awake);
-    const duration = time_begin.durationTo(time_end);
-    const duration_ms = duration.toMilliseconds();
+    const time_begin = std.Io.Clock.now(.awake, io);
 
-    var buf: [120]u8 = undefined;
-    const msg = std.fmt.bufPrint(&buf, "Computation only: {d} ms (~{d} ops/sec, checksum={d})\n", .{ duration_ms, (@as(u64, end) - begin) *| 1000 / @as(u64, @intCast(@max(duration_ms, 1))), acc }) catch return;
-    try std.Io.File.writeStreamingAll(stdout_file, io, msg);
+    var acc: u64 = 0;
+    for (0..passes) |_| {
+        for (0..count) |i| {
+            acc += rutDv(&ruts[i]);
+        }
+    }
+
+    const time_end = std.Io.Clock.now(.awake, io);
+    const elapsed_ns: f64 = @floatFromInt(time_end.nanoseconds - time_begin.nanoseconds);
+    const elapsed_ms = elapsed_ns / 1_000_000.0;
+    const mops = (@as(f64, @floatFromInt(total_ops)) / (elapsed_ns / 1_000_000_000.0)) / 1_000_000.0;
+
+    var buf: [128]u8 = undefined;
+    const msg = try std.fmt.bufPrint(
+        &buf,
+        "rutDv (100M ops): {d:.2} ms (~{d:.1}M ops/sec, checksum={d})\n",
+        .{ elapsed_ms, mops, acc },
+    );
+    try stdout_file.writeStreamingAll(io, msg);
 }

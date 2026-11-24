@@ -1,1 +1,1 @@
-pub const RUT = @import("rut").RUT;
+pub const rutDv = @import("rut").rutDv;
