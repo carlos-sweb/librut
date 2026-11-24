@@ -64,9 +64,33 @@ gcc -O3 main.c -I zig-out/include -L zig-out/lib -lrut -Wl,-rpath,zig-out/lib -o
 
 ## Uso de la CLI
 
+La CLI es un cliente de `librut`: se encarga de limpiar y formatear el RUT y delega el cálculo del dígito verificador a `rutDv`.
+
 ```sh
-zig build run -- 16521526
+zig build run -- -p "16521526"
+# 16.521.526-5
+
+zig build run -- -p "30686957" --check-digit "5"
+# Check digit => 5 Error
+# 30.686.957-4
+
+zig build run -- -p "16521526" --get-digit
 # 5
+
+zig build run -- -p "30686957" --separate-miles "" --separate-digit " "
+# 30686957 4
+```
+
+### Opciones
+
+```
+ -p,--parser: <RUT>          string rut to check
+ --check-digit:              digit to compare
+ --get-digit:                get only digit verifier
+ --separate-miles:           string to separate miles default .
+ --separate-digit:           string to separate digit default -
+ -v,--version:               show version
+ -h,--help:                  show this help
 ```
 
 ## Benchmark
