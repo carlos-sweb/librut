@@ -74,9 +74,7 @@ pub fn build(b: *std.Build) void {
     // ── Run step ─────────────────────────────────────────────
     const run_cmd = b.addRunArtifact(exe);
     run_cmd.step.dependOn(b.getInstallStep());
-    if (b.args) |args| {
-        run_cmd.addArgs(args);
-    }
+    run_cmd.addPassthruArgs();
     const run_step = b.step("run", "Run the rut CLI");
     run_step.dependOn(&run_cmd.step);
 
@@ -132,6 +130,7 @@ pub fn build(b: *std.Build) void {
 
     // ── pkg-config files ────────────────────────────────────
     const wf = b.addWriteFiles();
+    const pc_prefix = b.option([]const u8, "pc-prefix", "Install prefix for pkg-config files") orelse "/usr/local";
 
     const shared_pc = b.fmt(
         \\prefix={s}
@@ -143,7 +142,7 @@ pub fn build(b: *std.Build) void {
         \\Version: 0.2.0
         \\Libs: -L${{libdir}} -lrut
         \\Cflags: -I${{includedir}}
-    , .{b.install_prefix});
+    , .{pc_prefix});
 
     const static_pc = b.fmt(
         \\prefix={s}
@@ -155,7 +154,7 @@ pub fn build(b: *std.Build) void {
         \\Version: 0.2.0
         \\Libs: -L${{libdir}} -lrut_c
         \\Cflags: -I${{includedir}}
-    , .{b.install_prefix});
+    , .{pc_prefix});
 
     const shared_pc_file = wf.add("librut.pc", shared_pc);
     const static_pc_file = wf.add("librut-static.pc", static_pc);

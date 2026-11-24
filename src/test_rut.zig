@@ -156,3 +156,21 @@ test "full roundtrip: format then parse" {
     try std.testing.expectEqualStrings("4", reparsed.dvInput().?);
     try std.testing.expect(reparsed.checkDigitWithInput());
 }
+
+test "calculateDVFromNumber and calculateDVClean match calculateDV" {
+    try std.testing.expectEqual(@as(u8, 5), RUT.calculateDV("16521526"));
+    try std.testing.expectEqual(@as(u8, 5), RUT.calculateDVClean("16521526"));
+    try std.testing.expectEqual(@as(u8, 5), RUT.calculateDVFromNumber(16521526));
+    try std.testing.expectEqual(@as(u8, 10), RUT.calculateDVFromNumber(16521529));
+    try std.testing.expectEqual(@as(u8, 10), RUT.calculateDVClean("16521529"));
+    try std.testing.expectEqual(@as(u8, 11), RUT.calculateDVFromNumber(0));
+    try std.testing.expectEqual(@as(u8, '0'), RUT.digitToChar(11));
+
+    var n: u32 = 16521526;
+    while (n < 16522526) : (n += 1) {
+        const r = RUT.fromNumber(n);
+        const dv_str = RUT.calculateDV(r.body());
+        try std.testing.expectEqual(dv_str, RUT.calculateDVClean(r.body()));
+        try std.testing.expectEqual(dv_str, RUT.calculateDVFromNumber(n));
+    }
+}

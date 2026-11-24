@@ -54,36 +54,83 @@ pub const RUT = struct {
         return result;
     }
 
+    const digits2 = "00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899";
+
     pub fn fromNumber(value: u32) RUT {
-        var buf: [10]u8 = undefined;
-        const s = std.fmt.bufPrint(&buf, "{d}", .{value}) catch return .{
-            .body_digits = std.mem.zeroes([12]u8),
-            .body_len = 0,
-            .dv_input_start = 0,
-            .dv_input_len = 0,
-        };
         var result: RUT = .{
-            .body_digits = std.mem.zeroes([12]u8),
+            .body_digits = undefined,
             .body_len = 0,
             .dv_input_start = 0,
             .dv_input_len = 0,
         };
-        const copy_len: u8 = @intCast(@min(s.len, 12));
-        @memcpy(result.body_digits[0..copy_len], s[0..copy_len]);
+        if (value == 0) {
+            result.body_digits[0] = '0';
+            result.body_len = 1;
+            return result;
+        }
+        var tmp: [10]u8 = undefined;
+        var pos: usize = 10;
+        var n = value;
+        while (n >= 100) {
+            const idx: usize = @intCast((n % 100) * 2);
+            n /= 100;
+            pos -= 2;
+            tmp[pos] = digits2[idx];
+            tmp[pos + 1] = digits2[idx + 1];
+        }
+        if (n >= 10) {
+            const idx: usize = @intCast(n * 2);
+            pos -= 2;
+            tmp[pos] = digits2[idx];
+            tmp[pos + 1] = digits2[idx + 1];
+        } else {
+            pos -= 1;
+            tmp[pos] = @as(u8, @intCast(n)) + '0';
+        }
+        const copy_len: u8 = @intCast(10 - pos);
+        @memcpy(result.body_digits[0..copy_len], tmp[pos..10]);
         result.body_len = copy_len;
         return result;
     }
 
+    pub fn calculateDVFromNumber(value: u32) u8 {
+        var n = value;
+        var total: u32 = 0;
+        var factor: u32 = 2;
+        while (n > 0) {
+            const digit = n % 10;
+            n /= 10;
+            total += digit * factor;
+            factor = if (factor == 7) 2 else factor + 1;
+        }
+        const remainder: u8 = @intCast(total % 11);
+        return 11 - remainder;
+    }
+
+    /// Fast DV calculation for pre-sanitized ASCII digit slices ('0'..'9').
+    /// Scans right-to-left with zero division by 10 and no non-digit branching.
+    pub fn calculateDVClean(bodyDigits: []const u8) u8 {
+        var total: u32 = 0;
+        var factor: u32 = 2;
+        var i = bodyDigits.len;
+        while (i > 0) {
+            i -= 1;
+            total += @as(u32, bodyDigits[i] - '0') * factor;
+            factor = if (factor == 7) 2 else factor + 1;
+        }
+        const remainder: u8 = @intCast(total % 11);
+        return 11 - remainder;
+    }
+
     pub fn calculateDV(bodyDigits: []const u8) u8 {
         var total: u32 = 0;
-        var factor: u8 = 2;
+        var factor: u32 = 2;
         var i = bodyDigits.len;
         while (i > 0) {
             i -= 1;
             const ch = bodyDigits[i];
             if (ch < '0' or ch > '9') continue;
-            const digit = ch - '0';
-            total += @as(u32, digit) * @as(u32, factor);
+            total += @as(u32, ch - '0') * factor;
             factor = if (factor == 7) 2 else factor + 1;
         }
         const remainder: u8 = @intCast(total % 11);
@@ -92,6 +139,7 @@ pub const RUT = struct {
 
     pub fn digitToChar(dv: u8) u8 {
         return switch (dv) {
+            11 => '0',
             10 => 'k',
             0...9 => |d| '0' + d,
             else => unreachable,
@@ -117,7 +165,7 @@ pub const RUT = struct {
     }
 
     pub fn getDigit(self: *const RUT) []const u8 {
-        return digitToString(calculateDV(self.body()));
+        return digitToString(calculateDVClean(self.body()));
     }
 
     pub fn checkDigit(self: *const RUT, local_digit: []const u8) bool {
@@ -139,28 +187,50 @@ pub const RUT = struct {
 
     pub fn formatToBuf(self: *const RUT, buf: []u8, sep_miles: []const u8, sep_digit: []const u8) []const u8 {
         const b = self.body();
-        const dv = self.getDigit();
+        const dv_char = digitToChar(calculateDVClean(b));
         var pos: usize = 0;
 
-        for (b, 0..) |ch, idx| {
-            if (idx > 0 and ((b.len - idx) % 3 == 0)) {
-                for (sep_miles) |s| {
-                    buf[pos] = s;
+        if (b.len > 0) {
+            var next_sep = b.len % 3;
+            if (next_sep == 0) next_sep = 3;
+
+            if (sep_miles.len == 1) {
+                const sm = sep_miles[0];
+                for (b, 0..) |ch, idx| {
+                    if (idx == next_sep) {
+                        buf[pos] = sm;
+                        pos += 1;
+                        next_sep += 3;
+                    }
+                    buf[pos] = ch;
+                    pos += 1;
+                }
+            } else if (sep_miles.len == 0) {
+                @memcpy(buf[0..b.len], b);
+                pos = b.len;
+            } else {
+                for (b, 0..) |ch, idx| {
+                    if (idx == next_sep) {
+                        @memcpy(buf[pos .. pos + sep_miles.len], sep_miles);
+                        pos += sep_miles.len;
+                        next_sep += 3;
+                    }
+                    buf[pos] = ch;
                     pos += 1;
                 }
             }
-            buf[pos] = ch;
-            pos += 1;
         }
 
-        for (sep_digit) |ch| {
-            buf[pos] = ch;
+        if (sep_digit.len == 1) {
+            buf[pos] = sep_digit[0];
             pos += 1;
+        } else if (sep_digit.len > 1) {
+            @memcpy(buf[pos .. pos + sep_digit.len], sep_digit);
+            pos += sep_digit.len;
         }
-        for (dv) |ch| {
-            buf[pos] = ch;
-            pos += 1;
-        }
+
+        buf[pos] = dv_char;
+        pos += 1;
         return buf[0..pos];
     }
 };

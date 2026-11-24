@@ -12,17 +12,19 @@ pub fn main(init: std.process.Init) !void {
 
     const time_begin = std.Io.Timestamp.now(io, .awake);
 
+    var acc: u64 = 0;
     var i = begin;
     while (i < end) : (i += 1) {
         const rut = RUT.fromNumber(i);
-        _ = rut.formatToBuf(&out_buf, ".", "-");
+        const formatted = rut.formatToBuf(&out_buf, ".", "-");
+        acc += formatted[formatted.len - 1];
     }
 
     const time_end = std.Io.Timestamp.now(io, .awake);
     const duration = time_begin.durationTo(time_end);
     const duration_ms = duration.toMilliseconds();
 
-    var buf: [80]u8 = undefined;
-    const msg = std.fmt.bufPrint(&buf, "Computation only: {d} ms (~{d} ops/sec)\n", .{ duration_ms, (@as(u64, end) - begin) *| 1000 / @as(u64, @intCast(@max(duration_ms, 1))) }) catch return;
+    var buf: [120]u8 = undefined;
+    const msg = std.fmt.bufPrint(&buf, "Computation only: {d} ms (~{d} ops/sec, checksum={d})\n", .{ duration_ms, (@as(u64, end) - begin) *| 1000 / @as(u64, @intCast(@max(duration_ms, 1))), acc }) catch return;
     try std.Io.File.writeStreamingAll(stdout_file, io, msg);
 }
